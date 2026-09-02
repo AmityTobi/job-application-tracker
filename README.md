@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Job Tracker
 
-## Getting Started
+A small, focused job application tracker built with Next.js, to reinforce and apply what I learned in Stephen Grider's _Next JS: The Complete Developer's Guide_, this time without a course guiding the build.
 
-First, run the development server:
+This project is intentionally scoped small: one page, no unnecessary routes, built to be finished rather than to be impressive.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Next.js (App Router)
+- TypeScript
+- Prisma 7 + SQLite
+- NextAuth (v5) with GitHub OAuth
+- Tailwind CSS + shadcn/ui
+- Zod for validation
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Planned Features (v1)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- Sign in with GitHub
+- Add a job application (company, role, role description, link, date applied, status)
+- View all applications in a list
+- Update an application's status inline
+- No separate routes for create/edit, both are modal-based on a single page
 
-## Learn More
+## Status
 
-To learn more about Next.js, take a look at the following resources:
+- ✅ Prisma schema designed and migrated (Application model + NextAuth-required models)
+- 🔄 Setting up authentication
+- ⏳ Building UI
+- ⏳ Wiring server actions
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Notes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This README is updated as the project progresses, treat it as a running log of decisions, not just a final description.
