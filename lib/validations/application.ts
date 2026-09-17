@@ -1,13 +1,31 @@
-import z from "zod";
+import { z } from "zod";
 
 export const applicationSchema = z.object({
-  companyName: z.string().min(3).max(100),
-  roleDescription: z.preprocess(
-    (val) => (val === "" || val === null ? undefined : val),
-    z.string().min(10).max(500).optional(),
-  ),
-  role: z.string().min(2).max(100),
-  status: z.enum(["APPLIED", "REJECTED", "INTERVIEW"]),
-  link: z.url(),
-  dateApplied: z.coerce.date().optional(),
+  companyName: z.string().trim().min(1, "Company name is required"),
+
+  role: z.string().trim().min(1, "Role is required"),
+
+  roleDescription: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => value || undefined),
+
+  location: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => value || undefined),
+
+  workMode: z.enum(["ONSITE", "HYBRID", "REMOTE"]).optional(),
+
+  status: z.enum(["APPLIED", "INTERVIEW", "OFFER", "REJECTED"]),
+
+  link: z
+    .string()
+    .trim()
+    .optional()
+    .transform((value) => value || undefined),
+
+  dateApplied: z.coerce.date(),
 });
