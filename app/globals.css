@@ -1,3 +1,142 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
+
+:root {
+  /* =========================================
+     BASE
+     ========================================= */
+
+  /* Warm off-white page background */
+  --background: #fafaf9;
+
+  /* Main charcoal text */
+  --foreground: #1c1917;
+
+  /* =========================================
+     SURFACES
+     ========================================= */
+
+  /* Cards stay white against the warm background */
+  --card: #ffffff;
+  --card-foreground: #1c1917;
+
+  --popover: #ffffff;
+  --popover-foreground: #1c1917;
+
+  /* =========================================
+     BRAND / PRIMARY ACTIONS
+     ========================================= */
+
+  /*
+    Darker orange is used for buttons because
+    white text has better contrast against it.
+  */
+  --primary: #c2410c;
+  --primary-foreground: #ffffff;
+
+  /*
+    Brighter orange is available for branding,
+    decorative highlights, icons, etc.
+  */
+  --brand: #f97316;
+
+  /* =========================================
+     SECONDARY
+     ========================================= */
+
+  --secondary: #f5f5f4;
+  --secondary-foreground: #292524;
+
+  /* =========================================
+     MUTED CONTENT
+     ========================================= */
+
+  --muted: #f5f5f4;
+  --muted-foreground: #78716c;
+
+  /* =========================================
+     ACCENT / HOVER SURFACES
+     ========================================= */
+
+  --accent: #f5f5f4;
+  --accent-foreground: #292524;
+
+  /* =========================================
+     DESTRUCTIVE
+     ========================================= */
+
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+
+  /* =========================================
+     BORDERS / INPUTS / FOCUS
+     ========================================= */
+
+  --border: #e7e5e4;
+  --input: #e7e5e4;
+
+  /* Orange keyboard focus ring */
+  --ring: #c2410c;
+
+  /* =========================================
+     RADIUS
+     ========================================= */
+
+  --radius: 0.75rem;
+}
+
+/* =========================================
+   TAILWIND V4 THEME MAPPING
+   ========================================= */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-brand: var(--brand);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+/* =========================================
+   GLOBAL BASE STYLES
+   ========================================= */
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+}
