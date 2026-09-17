@@ -72,20 +72,36 @@ model VerificationToken {
  
 
 enum ApplicationStatus {
-  APPLIED
-  REJECTED
+   APPLIED
   INTERVIEW
+  OFFER
+  REJECTED
+}
+
+
+enum WorkMode {
+  ONSITE
+  HYBRID
+  REMOTE
 }
 
 model Application {
   id             String            @id @default(cuid())
   userId         String
+
   companyName    String
   roleDescription String?
   role           String
+  location        String?
+  workMode       WorkMode?
+
   status         ApplicationStatus
-  link           String
+  link           String?
   dateApplied    DateTime @default(now())
+
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
