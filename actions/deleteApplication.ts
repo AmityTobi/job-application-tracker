@@ -2,6 +2,7 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
 import z from "zod";
 
 export async function deleteApplicationAction(
@@ -36,6 +37,8 @@ export async function deleteApplicationAction(
     await db.application.delete({
       where: { id: data.data.id, userId: session.user.id },
     });
+
+    revalidatePath("/");
 
     return {
       success: true,

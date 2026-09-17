@@ -2,6 +2,8 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
+import { applicationSchema } from "@/lib/validations/application";
+import { revalidatePath } from "next/cache";
 import z from "zod";
 
 export async function createApplicationAction(
@@ -17,19 +19,7 @@ export async function createApplicationAction(
     };
   }
 
-  const schema = z.object({
-    companyName: z.string().min(3).max(100),
-    roleDescription: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : val),
-      z.string().min(10).max(500).optional(),
-    ),
-    role: z.string().min(2).max(100),
-    status: z.enum(["APPLIED", "REJECTED", "INTERVIEW"]),
-    link: z.url(),
-    dateApplied: z.coerce.date().optional(),
-  });
-
-  const data = schema.safeParse({
+  const data = applicationSchema.safeParse({
     companyName: formData.get("companyName"),
     roleDescription: formData.get("roleDescription"),
     role: formData.get("role"),
@@ -45,20 +35,32 @@ export async function createApplicationAction(
     };
   }
 
-  await db.application.create({
-    data: {
-      companyName: data.data.companyName,
-      role: data.data.role,
-      status: data.data.status,
-      link: data.data.link,
-      dateApplied: data.data.dateApplied,
-      roleDescription: data.data.roleDescription,
-      userId: session?.user?.id,
-    },
-  });
+  try {
+    await db.application.create({
+      data: {
+        companyName: data.data.companyName,
+        role: data.data.role,
+        status: data.data.status,
+        link: data.data.link,
+        dateApplied: data.data.dateApplied,
+        roleDescription: data.data.roleDescription,
+        userId: session?.user?.id,
+      },
+    });
 
-  return {
-    success: true,
-    errors: null,
-  };
+    revalidatePath("/");
+
+    return {
+      success: true,
+      errors: null,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      errors: {
+        message:
+          "Could not create the application. You may not have permission.",
+      },
+    };
+  }
 }

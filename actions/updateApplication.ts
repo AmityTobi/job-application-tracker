@@ -3,6 +3,7 @@
 import { applicationSchema } from "@/lib/validations/application";
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
+import { revalidatePath } from "next/cache";
 import z from "zod";
 
 export async function updateApplicationAction(
@@ -54,6 +55,8 @@ export async function updateApplicationAction(
         dateApplied: result.data.dateApplied,
       },
     });
+
+    revalidatePath("/");
 
     return {
       success: true,
