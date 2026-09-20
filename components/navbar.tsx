@@ -1,8 +1,9 @@
-import { BriefcaseBusiness, LogOut, Plus } from "lucide-react";
+import { BriefcaseBusiness, LogOut } from "lucide-react";
 
 import { auth } from "@/auth";
-import { Button } from "@/components/ui/button";
 import * as actions from "@/actions";
+
+import { Button } from "@/components/ui/button";
 
 export default async function Navbar() {
   const session = await auth();
@@ -21,22 +22,14 @@ export default async function Navbar() {
           </span>
         </div>
 
-        {/* Navigation actions */}
+        {/* Authentication action */}
         {session?.user ? (
-          <div className="flex items-center gap-1 sm:gap-2">
-            <Button size="sm">
-              <Plus />
-              <span className="hidden sm:inline">Add Application</span>
-              <span className="sm:hidden">Add</span>
+          <form action={actions.logoutAction}>
+            <Button type="submit" variant="ghost" size="sm">
+              <LogOut />
+              <span>Sign Out</span>
             </Button>
-
-            <form action={actions.logoutAction}>
-              <Button type="submit" variant="ghost" size="sm">
-                <LogOut />
-                <span className="hidden sm:inline">Sign Out</span>
-              </Button>
-            </form>
-          </div>
+          </form>
         ) : (
           <form action={actions.loginAction}>
             <Button type="submit">Get Started</Button>

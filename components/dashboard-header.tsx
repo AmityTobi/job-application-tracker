@@ -11,8 +11,8 @@ export default function DashboardHeader({ name }: DashboardHeaderProps) {
         Welcome back{firstName ? `, ${firstName}` : ""}
       </h1>
 
-      <p className="mt-1 text-sm text-muted-foreground sm:text-base">
-        Here&apos;s what&apos;s happening with your job search.
+      <p className="mt-1.5 text-sm text-muted-foreground sm:text-base">
+        Keep track of your job search in one place.
       </p>
     </section>
   );
