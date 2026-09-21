@@ -116,7 +116,7 @@ export default function ApplicationCard({ application }: ApplicationCardProps) {
           )}
         </div>
 
-        <ApplicationActions applicationId={application.id} />
+        <ApplicationActions application={application} />
       </div>
     </article>
   );
