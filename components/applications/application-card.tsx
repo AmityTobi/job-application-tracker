@@ -9,7 +9,7 @@ import {
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import DeleteApplicationButton from "@/components/delete-application-button";
+import ApplicationActions from "@/components/applications/application-actions";
 
 interface ApplicationCardProps {
   application: Application;
@@ -116,7 +116,7 @@ export default function ApplicationCard({ application }: ApplicationCardProps) {
           )}
         </div>
 
-        <DeleteApplicationButton id={application.id} />
+        <ApplicationActions applicationId={application.id} />
       </div>
     </article>
   );
