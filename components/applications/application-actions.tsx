@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
+import DeleteApplicationDialog from "./delete-application-dialog";
 import EditApplicationDialog from "./edit-application-dialog";
 
 interface ApplicationActionsProps {
@@ -24,10 +25,7 @@ export default function ApplicationActions({
   application,
 }: ApplicationActionsProps) {
   const [editOpen, setEditOpen] = useState(false);
-
-  function handleDelete() {
-    console.log("Delete application:", application.id);
-  }
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   return (
     <>
@@ -53,7 +51,7 @@ export default function ApplicationActions({
           <DropdownMenuSeparator />
 
           <DropdownMenuItem
-            onClick={handleDelete}
+            onClick={() => setDeleteOpen(true)}
             className="text-destructive focus:text-destructive"
           >
             <Trash2 />
@@ -66,6 +64,12 @@ export default function ApplicationActions({
         application={application}
         open={editOpen}
         onOpenChange={setEditOpen}
+      />
+
+      <DeleteApplicationDialog
+        application={application}
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
       />
     </>
   );
