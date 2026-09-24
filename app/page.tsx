@@ -6,8 +6,15 @@ import DashboardHeader from "@/components/dashboard-header";
 import ApplicationList from "@/components/application-list";
 import AddApplicationDialog from "@/components/applications/add-application-dialog";
 import ApplicationStats from "@/components/applications/application-stats";
+import ApplicationSearch from "@/components/applications/application-search";
 
-export default async function Home() {
+interface HomeProps {
+  searchParams: Promise<{
+    search?: string;
+  }>;
+}
+
+export default async function Home({ searchParams }: HomeProps) {
   const session = await auth();
 
   if (!session?.user?.id) {
@@ -24,14 +31,40 @@ export default async function Home() {
     );
   }
 
-  const applications = await db.application.findMany({
-    where: {
-      userId: session.user.id,
-    },
-    orderBy: {
-      dateApplied: "desc",
-    },
-  });
+  const { search } = await searchParams;
+
+  const [allApplications, applications] = await Promise.all([
+    db.application.findMany({
+      where: {
+        userId: session.user.id,
+      },
+    }),
+
+    db.application.findMany({
+      where: {
+        userId: session.user.id,
+
+        ...(search && {
+          OR: [
+            {
+              companyName: {
+                contains: search,
+              },
+            },
+            {
+              role: {
+                contains: search,
+              },
+            },
+          ],
+        }),
+      },
+
+      orderBy: {
+        dateApplied: "desc",
+      },
+    }),
+  ]);
 
   return (
     <div className="min-h-screen">
@@ -40,7 +73,7 @@ export default async function Home() {
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <DashboardHeader name={session.user.name} />
 
-        <ApplicationStats applications={applications} />
+        <ApplicationStats applications={allApplications} />
 
         <section className="mt-10">
           <div className="mb-5 flex items-start justify-between gap-4">
@@ -57,7 +90,14 @@ export default async function Home() {
             <AddApplicationDialog />
           </div>
 
-          <ApplicationList applications={applications} />
+          <div className="mb-5">
+            <ApplicationSearch key={search ?? ""} defaultValue={search ?? ""} />
+          </div>
+
+          <ApplicationList
+            applications={applications}
+            hasActiveSearch={Boolean(search)}
+          />
         </section>
       </main>
     </div>

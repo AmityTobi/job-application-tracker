@@ -7,11 +7,31 @@ import ApplicationCard from "@/components/applications/application-card";
 
 interface ApplicationListProps {
   applications: Application[];
+  hasActiveSearch?: boolean;
 }
 
 export default function ApplicationList({
   applications,
+  hasActiveSearch = false,
 }: ApplicationListProps) {
+  if (applications.length === 0 && hasActiveSearch) {
+    return (
+      <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed bg-card px-6 py-12 text-center">
+        <div className="flex size-12 items-center justify-center rounded-full bg-muted">
+          <BriefcaseBusiness className="size-5 text-muted-foreground" />
+        </div>
+
+        <h3 className="mt-4 font-semibold tracking-tight">
+          No applications found
+        </h3>
+
+        <p className="mt-1.5 max-w-sm text-sm leading-6 text-muted-foreground">
+          Try searching for a different company or role.
+        </p>
+      </div>
+    );
+  }
+
   if (applications.length === 0) {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center rounded-xl border border-dashed bg-card px-6 py-12 text-center">
