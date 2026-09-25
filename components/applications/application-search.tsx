@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-
+import type { SyntheticEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Search } from "lucide-react";
@@ -22,12 +22,10 @@ export default function ApplicationSearch({
 
   const [search, setSearch] = useState(defaultValue);
 
-  function handleSearch(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
+  function updateSearch(value: string) {
     const params = new URLSearchParams(searchParams.toString());
 
-    const trimmedSearch = search.trim();
+    const trimmedSearch = value.trim();
 
     if (trimmedSearch) {
       params.set("search", trimmedSearch);
@@ -35,7 +33,6 @@ export default function ApplicationSearch({
       params.delete("search");
     }
 
-    // A new search should always begin on the first page.
     params.delete("page");
 
     const query = params.toString();
@@ -46,15 +43,30 @@ export default function ApplicationSearch({
 
     const currentUrl = currentQuery ? `${pathname}?${currentQuery}` : pathname;
 
-    // Avoid unnecessary navigation.
     if (nextUrl === currentUrl) return;
 
     router.push(nextUrl);
   }
 
+  function handleSubmit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
+    event.preventDefault();
+    updateSearch(search);
+  }
+
+  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const value = event.target.value;
+
+    setSearch(value);
+
+    // Automatically restore results when search is cleared.
+    if (value === "" && searchParams.has("search")) {
+      updateSearch("");
+    }
+  }
+
   return (
     <form
-      onSubmit={handleSearch}
+      onSubmit={handleSubmit}
       role="search"
       className="flex w-full items-center gap-2 sm:max-w-md"
     >
@@ -68,8 +80,8 @@ export default function ApplicationSearch({
           type="search"
           name="search"
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search company or role..."
+          onChange={handleChange}
+          placeholder="Search by company or job title"
           aria-label="Search applications"
           className="pl-9"
         />
