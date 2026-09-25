@@ -7,10 +7,12 @@ import ApplicationList from "@/components/application-list";
 import AddApplicationDialog from "@/components/applications/add-application-dialog";
 import ApplicationStats from "@/components/applications/application-stats";
 import ApplicationSearch from "@/components/applications/application-search";
+import ApplicationStatusFilter from "@/components/applications/application-status-filter";
 
 interface HomeProps {
   searchParams: Promise<{
     search?: string;
+    status?: string;
   }>;
 }
 
@@ -31,7 +33,11 @@ export default async function Home({ searchParams }: HomeProps) {
     );
   }
 
-  const { search } = await searchParams;
+  const { search, status } = await searchParams;
+
+  const validStatuses = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"] as const;
+
+  const selectedStatus = validStatuses.find((value) => value === status);
 
   const [allApplications, applications] = await Promise.all([
     db.application.findMany({
@@ -57,6 +63,10 @@ export default async function Home({ searchParams }: HomeProps) {
               },
             },
           ],
+        }),
+
+        ...(selectedStatus && {
+          status: selectedStatus,
         }),
       },
 
@@ -90,13 +100,15 @@ export default async function Home({ searchParams }: HomeProps) {
             <AddApplicationDialog />
           </div>
 
-          <div className="mb-5">
+          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <ApplicationSearch key={search ?? ""} defaultValue={search ?? ""} />
+
+            <ApplicationStatusFilter value={selectedStatus ?? "ALL"} />
           </div>
 
           <ApplicationList
             applications={applications}
-            hasActiveSearch={Boolean(search)}
+            hasActiveFilters={Boolean(search) || Boolean(selectedStatus)}
           />
         </section>
       </main>
