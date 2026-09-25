@@ -8,11 +8,13 @@ import AddApplicationDialog from "@/components/applications/add-application-dial
 import ApplicationStats from "@/components/applications/application-stats";
 import ApplicationSearch from "@/components/applications/application-search";
 import ApplicationStatusFilter from "@/components/applications/application-status-filter";
+import ApplicationSort from "@/components/applications/application-sort";
 
 interface HomeProps {
   searchParams: Promise<{
     search?: string;
     status?: string;
+    sort?: string;
   }>;
 }
 
@@ -33,11 +35,38 @@ export default async function Home({ searchParams }: HomeProps) {
     );
   }
 
-  const { search, status } = await searchParams;
+  const { search, status, sort } = await searchParams;
 
   const validStatuses = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"] as const;
 
   const selectedStatus = validStatuses.find((value) => value === status);
+
+  const validSortOptions = [
+    "newest",
+    "oldest",
+    "company-asc",
+    "company-desc",
+  ] as const;
+
+  type SortOption = (typeof validSortOptions)[number];
+
+  const selectedSort: SortOption =
+    validSortOptions.find((option) => option === sort) ?? "newest";
+
+  const sortOptions = {
+    newest: {
+      dateApplied: "desc",
+    },
+    oldest: {
+      dateApplied: "asc",
+    },
+    "company-asc": {
+      companyName: "asc",
+    },
+    "company-desc": {
+      companyName: "desc",
+    },
+  } as const;
 
   const [allApplications, applications] = await Promise.all([
     db.application.findMany({
@@ -70,9 +99,7 @@ export default async function Home({ searchParams }: HomeProps) {
         }),
       },
 
-      orderBy: {
-        dateApplied: "desc",
-      },
+      orderBy: sortOptions[selectedSort],
     }),
   ]);
 
@@ -100,10 +127,14 @@ export default async function Home({ searchParams }: HomeProps) {
             <AddApplicationDialog />
           </div>
 
-          <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <ApplicationSearch key={search ?? ""} defaultValue={search ?? ""} />
 
-            <ApplicationStatusFilter value={selectedStatus ?? "ALL"} />
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <ApplicationStatusFilter value={selectedStatus ?? "ALL"} />
+
+              <ApplicationSort value={selectedSort} />
+            </div>
           </div>
 
           <ApplicationList
