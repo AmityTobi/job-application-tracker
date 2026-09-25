@@ -12,7 +12,7 @@ import ApplicationSort from "@/components/applications/application-sort";
 
 interface HomeProps {
   searchParams: Promise<{
-    search?: string;
+    search?: string | string[];
     status?: string;
     sort?: string;
   }>;
@@ -37,8 +37,10 @@ export default async function Home({ searchParams }: HomeProps) {
 
   const { search, status, sort } = await searchParams;
 
-  const validStatuses = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"] as const;
+  const searchTerm =
+    typeof search === "string" ? search.trim().slice(0, 100) : "";
 
+  const validStatuses = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"] as const;
   const selectedStatus = validStatuses.find((value) => value === status);
 
   const validSortOptions = [
@@ -79,16 +81,16 @@ export default async function Home({ searchParams }: HomeProps) {
       where: {
         userId: session.user.id,
 
-        ...(search && {
+        ...(searchTerm && {
           OR: [
             {
               companyName: {
-                contains: search,
+                contains: searchTerm,
               },
             },
             {
               role: {
-                contains: search,
+                contains: searchTerm,
               },
             },
           ],
@@ -128,7 +130,10 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
 
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <ApplicationSearch key={search ?? ""} defaultValue={search ?? ""} />
+            <ApplicationSearch
+              key={searchTerm ?? ""}
+              defaultValue={searchTerm ?? ""}
+            />
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <ApplicationStatusFilter value={selectedStatus ?? "ALL"} />
@@ -139,7 +144,7 @@ export default async function Home({ searchParams }: HomeProps) {
 
           <ApplicationList
             applications={applications}
-            hasActiveFilters={Boolean(search) || Boolean(selectedStatus)}
+            hasActiveFilters={Boolean(searchTerm) || Boolean(selectedStatus)}
           />
         </section>
       </main>
