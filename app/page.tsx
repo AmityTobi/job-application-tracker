@@ -1,22 +1,47 @@
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 
+import type { Prisma } from "@/lib/generated/prisma/client";
+
 import Navbar from "@/components/navbar";
 import DashboardHeader from "@/components/dashboard-header";
 import ApplicationList from "@/components/application-list";
-import AddApplicationDialog from "@/components/applications/add-application-dialog";
 import ApplicationStats from "@/components/applications/application-stats";
+
+import AddApplicationDialog from "@/components/applications/add-application-dialog";
 import ApplicationSearch from "@/components/applications/application-search";
 import ApplicationStatusFilter from "@/components/applications/application-status-filter";
 import ApplicationSort from "@/components/applications/application-sort";
+import ApplicationPagination from "@/components/applications/application-pagination";
 
 interface HomeProps {
   searchParams: Promise<{
     search?: string | string[];
-    status?: string;
-    sort?: string;
+    status?: string | string[];
+    sort?: string | string[];
+    page?: string | string[];
   }>;
 }
+
+const PAGE_SIZE = 10;
+
+const validStatuses = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"] as const;
+
+const validSortOptions = [
+  "newest",
+  "oldest",
+  "company-asc",
+  "company-desc",
+] as const;
+
+type SortOption = (typeof validSortOptions)[number];
+
+const sortOptions = {
+  newest: [{ dateApplied: "desc" }, { id: "desc" }],
+  oldest: [{ dateApplied: "asc" }, { id: "asc" }],
+  "company-asc": [{ companyName: "asc" }, { id: "asc" }],
+  "company-desc": [{ companyName: "desc" }, { id: "desc" }],
+} satisfies Record<SortOption, Prisma.ApplicationOrderByWithRelationInput[]>;
 
 export default async function Home({ searchParams }: HomeProps) {
   const session = await auth();
@@ -35,75 +60,77 @@ export default async function Home({ searchParams }: HomeProps) {
     );
   }
 
-  const { search, status, sort } = await searchParams;
+  // Read URL parameters.
+  const { search, status, sort, page } = await searchParams;
 
+  // Normalize free-text search.
   const searchTerm =
     typeof search === "string" ? search.trim().slice(0, 100) : "";
 
-  const validStatuses = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"] as const;
+  // Validate status.
   const selectedStatus = validStatuses.find((value) => value === status);
 
-  const validSortOptions = [
-    "newest",
-    "oldest",
-    "company-asc",
-    "company-desc",
-  ] as const;
-
-  type SortOption = (typeof validSortOptions)[number];
-
+  // Validate sorting.
   const selectedSort: SortOption =
     validSortOptions.find((option) => option === sort) ?? "newest";
 
-  const sortOptions = {
-    newest: {
-      dateApplied: "desc",
-    },
-    oldest: {
-      dateApplied: "asc",
-    },
-    "company-asc": {
-      companyName: "asc",
-    },
-    "company-desc": {
-      companyName: "desc",
-    },
-  } as const;
+  // Validate pagination.
+  const pageNumber =
+    typeof page === "string" &&
+    /^[1-9]\d*$/.test(page) &&
+    Number.isSafeInteger(Number(page))
+      ? Number(page)
+      : 1;
 
-  const [allApplications, applications] = await Promise.all([
+  // Shared conditions for the filtered list and matching count.
+  const where: Prisma.ApplicationWhereInput = {
+    userId: session.user.id,
+
+    ...(searchTerm && {
+      OR: [
+        {
+          companyName: {
+            contains: searchTerm,
+          },
+        },
+        {
+          role: {
+            contains: searchTerm,
+          },
+        },
+      ],
+    }),
+
+    ...(selectedStatus && {
+      status: selectedStatus,
+    }),
+  };
+
+  // Fetch all applications for stats and count matching applications.
+  const [allApplications, totalApplications] = await Promise.all([
     db.application.findMany({
       where: {
         userId: session.user.id,
       },
     }),
 
-    db.application.findMany({
-      where: {
-        userId: session.user.id,
-
-        ...(searchTerm && {
-          OR: [
-            {
-              companyName: {
-                contains: searchTerm,
-              },
-            },
-            {
-              role: {
-                contains: searchTerm,
-              },
-            },
-          ],
-        }),
-
-        ...(selectedStatus && {
-          status: selectedStatus,
-        }),
-      },
-
-      orderBy: sortOptions[selectedSort],
+    db.application.count({
+      where,
     }),
   ]);
+
+  // Calculate pagination.
+  const totalPages = Math.max(1, Math.ceil(totalApplications / PAGE_SIZE));
+
+  const currentPage = Math.min(pageNumber, totalPages);
+
+  // Fetch only the applications required for the current page.
+  const applications = await db.application.findMany({
+    where,
+    orderBy: sortOptions[selectedSort],
+    skip: (currentPage - 1) * PAGE_SIZE,
+    take: PAGE_SIZE,
+  });
 
   return (
     <div className="min-h-screen">
@@ -130,10 +157,7 @@ export default async function Home({ searchParams }: HomeProps) {
           </div>
 
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-            <ApplicationSearch
-              key={searchTerm ?? ""}
-              defaultValue={searchTerm ?? ""}
-            />
+            <ApplicationSearch key={searchTerm} defaultValue={searchTerm} />
 
             <div className="flex flex-col gap-3 sm:flex-row">
               <ApplicationStatusFilter value={selectedStatus ?? "ALL"} />
@@ -145,6 +169,16 @@ export default async function Home({ searchParams }: HomeProps) {
           <ApplicationList
             applications={applications}
             hasActiveFilters={Boolean(searchTerm) || Boolean(selectedStatus)}
+          />
+
+          <ApplicationPagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            searchParams={{
+              search: searchTerm,
+              status: selectedStatus,
+              sort: selectedSort,
+            }}
           />
         </section>
       </main>
