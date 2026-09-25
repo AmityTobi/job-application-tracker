@@ -1,7 +1,11 @@
 import { auth } from "@/auth";
-import { db } from "@/lib/db";
 
-import type { Prisma } from "@/lib/generated/prisma/client";
+import {
+  parseApplicationSearchParams,
+  type ApplicationSearchParams,
+} from "@/lib/applications/search-params";
+
+import { getApplications } from "@/lib/applications/queries";
 
 import Navbar from "@/components/navbar";
 import DashboardHeader from "@/components/dashboard-header";
@@ -15,33 +19,8 @@ import ApplicationSort from "@/components/applications/application-sort";
 import ApplicationPagination from "@/components/applications/application-pagination";
 
 interface HomeProps {
-  searchParams: Promise<{
-    search?: string | string[];
-    status?: string | string[];
-    sort?: string | string[];
-    page?: string | string[];
-  }>;
+  searchParams: Promise<ApplicationSearchParams>;
 }
-
-const PAGE_SIZE = 10;
-
-const validStatuses = ["APPLIED", "INTERVIEW", "OFFER", "REJECTED"] as const;
-
-const validSortOptions = [
-  "newest",
-  "oldest",
-  "company-asc",
-  "company-desc",
-] as const;
-
-type SortOption = (typeof validSortOptions)[number];
-
-const sortOptions = {
-  newest: [{ dateApplied: "desc" }, { id: "desc" }],
-  oldest: [{ dateApplied: "asc" }, { id: "asc" }],
-  "company-asc": [{ companyName: "asc" }, { id: "asc" }],
-  "company-desc": [{ companyName: "desc" }, { id: "desc" }],
-} satisfies Record<SortOption, Prisma.ApplicationOrderByWithRelationInput[]>;
 
 export default async function Home({ searchParams }: HomeProps) {
   const session = await auth();
@@ -60,77 +39,19 @@ export default async function Home({ searchParams }: HomeProps) {
     );
   }
 
-  // Read URL parameters.
-  const { search, status, sort, page } = await searchParams;
+  // Validate the URL parameters.
+  const { searchTerm, selectedStatus, selectedSort, pageNumber } =
+    parseApplicationSearchParams(await searchParams);
 
-  // Normalize free-text search.
-  const searchTerm =
-    typeof search === "string" ? search.trim().slice(0, 100) : "";
-
-  // Validate status.
-  const selectedStatus = validStatuses.find((value) => value === status);
-
-  // Validate sorting.
-  const selectedSort: SortOption =
-    validSortOptions.find((option) => option === sort) ?? "newest";
-
-  // Validate pagination.
-  const pageNumber =
-    typeof page === "string" &&
-    /^[1-9]\d*$/.test(page) &&
-    Number.isSafeInteger(Number(page))
-      ? Number(page)
-      : 1;
-
-  // Shared conditions for the filtered list and matching count.
-  const where: Prisma.ApplicationWhereInput = {
-    userId: session.user.id,
-
-    ...(searchTerm && {
-      OR: [
-        {
-          companyName: {
-            contains: searchTerm,
-          },
-        },
-        {
-          role: {
-            contains: searchTerm,
-          },
-        },
-      ],
-    }),
-
-    ...(selectedStatus && {
-      status: selectedStatus,
-    }),
-  };
-
-  // Fetch all applications for stats and count matching applications.
-  const [allApplications, totalApplications] = await Promise.all([
-    db.application.findMany({
-      where: {
-        userId: session.user.id,
-      },
-    }),
-
-    db.application.count({
-      where,
-    }),
-  ]);
-
-  // Calculate pagination.
-  const totalPages = Math.max(1, Math.ceil(totalApplications / PAGE_SIZE));
-
-  const currentPage = Math.min(pageNumber, totalPages);
-
-  // Fetch only the applications required for the current page.
-  const applications = await db.application.findMany({
-    where,
-    orderBy: sortOptions[selectedSort],
-    skip: (currentPage - 1) * PAGE_SIZE,
-    take: PAGE_SIZE,
-  });
+  // Retrieve application data.
+  const { applications, allApplications, totalPages, currentPage } =
+    await getApplications({
+      userId: session.user.id,
+      searchTerm,
+      selectedStatus,
+      selectedSort,
+      pageNumber,
+    });
 
   return (
     <div className="min-h-screen">
