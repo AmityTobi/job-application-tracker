@@ -44,7 +44,7 @@ export default async function Home({ searchParams }: HomeProps) {
     parseApplicationSearchParams(await searchParams);
 
   // Retrieve application data.
-  const { applications, allApplications, totalPages, currentPage } =
+  const { applications, stats, totalPages, currentPage } =
     await getApplications({
       userId: session.user.id,
       searchTerm,
@@ -60,7 +60,7 @@ export default async function Home({ searchParams }: HomeProps) {
       <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
         <DashboardHeader name={session.user.name} />
 
-        <ApplicationStats applications={allApplications} />
+        <ApplicationStats stats={stats} />
 
         <section className="mt-10">
           <div className="mb-5 flex items-start justify-between gap-4">

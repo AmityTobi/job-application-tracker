@@ -27,7 +27,6 @@ export async function getApplications({
   selectedSort,
   pageNumber,
 }: GetApplicationsOptions) {
-  // Build reusable filtering conditions.
   const where: Prisma.ApplicationWhereInput = {
     userId,
 
@@ -43,11 +42,14 @@ export async function getApplications({
     }),
   };
 
-  // Retrieve all user applications for dashboard statistics,
-  // and count the applications matching the active filters.
-  const [allApplications, totalApplications] = await Promise.all([
-    db.application.findMany({
+  // Count applications by status without retrieving every record.
+  const [statusGroups, totalApplications] = await Promise.all([
+    db.application.groupBy({
+      by: ["status"],
       where: { userId },
+      _count: {
+        _all: true,
+      },
     }),
 
     db.application.count({
@@ -55,12 +57,37 @@ export async function getApplications({
     }),
   ]);
 
-  // Calculate pagination.
+  const stats = {
+    total: 0,
+    interviews: 0,
+    offers: 0,
+    rejected: 0,
+  };
+
+  for (const group of statusGroups) {
+    const count = group._count._all;
+
+    stats.total += count;
+
+    switch (group.status) {
+      case "INTERVIEW":
+        stats.interviews = count;
+        break;
+
+      case "OFFER":
+        stats.offers = count;
+        break;
+
+      case "REJECTED":
+        stats.rejected = count;
+        break;
+    }
+  }
+
   const totalPages = Math.max(1, Math.ceil(totalApplications / PAGE_SIZE));
 
   const currentPage = Math.min(pageNumber, totalPages);
 
-  // Retrieve only the applications belonging to the current page.
   const applications = await db.application.findMany({
     where,
     orderBy: sortOptions[selectedSort],
@@ -70,7 +97,7 @@ export async function getApplications({
 
   return {
     applications,
-    allApplications,
+    stats,
     totalApplications,
     totalPages,
     currentPage,

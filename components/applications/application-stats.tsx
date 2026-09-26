@@ -1,5 +1,3 @@
-import type { Application } from "@/lib/generated/prisma/browser";
-
 import {
   BriefcaseBusiness,
   CalendarCheck,
@@ -8,48 +6,39 @@ import {
 } from "lucide-react";
 
 interface ApplicationStatsProps {
-  applications: Application[];
+  stats: {
+    total: number;
+    interviews: number;
+    offers: number;
+    rejected: number;
+  };
 }
 
 export default function ApplicationStats({
-  applications,
+  stats: applicationStats,
 }: ApplicationStatsProps) {
-  const totalApplications = applications.length;
-
-  const interviews = applications.filter(
-    (application) => application.status === "INTERVIEW",
-  ).length;
-
-  const offers = applications.filter(
-    (application) => application.status === "OFFER",
-  ).length;
-
-  const rejected = applications.filter(
-    (application) => application.status === "REJECTED",
-  ).length;
-
   const stats = [
     {
       label: "Applications",
-      value: totalApplications,
+      value: applicationStats.total,
       description: "Total tracked",
       icon: BriefcaseBusiness,
     },
     {
       label: "Interviews",
-      value: interviews,
+      value: applicationStats.interviews,
       description: "In progress",
       icon: CalendarCheck,
     },
     {
       label: "Offers",
-      value: offers,
+      value: applicationStats.offers,
       description: "Received",
       icon: CircleCheckBig,
     },
     {
       label: "Rejected",
-      value: rejected,
+      value: applicationStats.rejected,
       description: "Not selected",
       icon: CircleX,
     },
