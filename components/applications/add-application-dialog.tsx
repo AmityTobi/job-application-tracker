@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+
 import {
   Dialog,
   DialogContent,
@@ -39,7 +40,7 @@ export default function AddApplicationDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <ApplicationForm onSuccess={() => setOpen(false)} />
+        {open && <ApplicationForm onSuccess={() => setOpen(false)} />}
       </DialogContent>
     </Dialog>
   );
