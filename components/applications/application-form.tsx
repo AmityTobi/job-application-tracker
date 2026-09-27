@@ -1,13 +1,21 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import { createApplicationAction } from "@/actions";
-
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 
+import {
+  getServerFieldErrors,
+  validateApplicationForm,
+} from "@/lib/applications/form-validation";
+
 import ApplicationFields, {
+  type ApplicationFieldErrors,
   type ApplicationFormValues,
 } from "./application-fields";
 
@@ -34,6 +42,8 @@ function getInitialValues(): ApplicationFormValues {
 }
 
 export default function ApplicationForm({ onSuccess }: ApplicationFormProps) {
+  const router = useRouter();
+
   const [state, formAction, isPending] = useActionState(
     createApplicationAction,
     initialState,
@@ -41,21 +51,94 @@ export default function ApplicationForm({ onSuccess }: ApplicationFormProps) {
 
   const [values, setValues] = useState<ApplicationFormValues>(getInitialValues);
 
+  const [clientErrors, setClientErrors] = useState<ApplicationFieldErrors>({});
+
+  const handledState = useRef(state);
+
+  const serverErrors = getServerFieldErrors(state.errors);
+
+  const errors = {
+    ...serverErrors,
+    ...clientErrors,
+  };
+
   useEffect(() => {
-    if (state.success) {
-      setValues(getInitialValues());
-      onSuccess?.();
+    if (handledState.current === state) {
+      return;
     }
-  }, [state.success, onSuccess]);
+
+    handledState.current = state;
+
+    if (state.success) {
+      toast.success("Application created", {
+        description: "Your application has been added successfully.",
+      });
+
+      setValues(getInitialValues());
+      setClientErrors({});
+
+      onSuccess?.();
+
+      router.refresh();
+
+      return;
+    }
+
+    if (
+      state.errors &&
+      "message" in state.errors &&
+      typeof state.errors.message === "string"
+    ) {
+      toast.error("Something went wrong", {
+        description: state.errors.message,
+      });
+    }
+  }, [state, onSuccess, router]);
+
+  function clearFieldError(field: keyof ApplicationFormValues) {
+    setClientErrors((previous) => {
+      const next = { ...previous };
+
+      delete next[field];
+
+      return next;
+    });
+  }
+
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    const validationErrors = validateApplicationForm(values);
+
+    setClientErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      event.preventDefault();
+
+      toast.error("Validation failed", {
+        description: "Please correct the highlighted fields.",
+      });
+    }
+  }
 
   return (
-    <form action={formAction} className="space-y-5">
-      <ApplicationFields values={values} onChange={setValues} />
+    <form
+      action={formAction}
+      onSubmit={handleSubmit}
+      noValidate
+      className="space-y-5"
+    >
+      <ApplicationFields
+        values={values}
+        onChange={setValues}
+        errors={errors}
+        onClearError={clearFieldError}
+      />
 
       {state.errors &&
         "message" in state.errors &&
         typeof state.errors.message === "string" && (
-          <p className="text-sm text-destructive">{state.errors.message}</p>
+          <p role="alert" className="text-sm text-destructive">
+            {state.errors.message}
+          </p>
         )}
 
       <DialogFooter>
@@ -67,7 +150,19 @@ export default function ApplicationForm({ onSuccess }: ApplicationFormProps) {
           Cancel
         </DialogClose>
 
-        <Button type="submit" disabled={isPending}>
+        <Button
+          type="submit"
+          disabled={isPending}
+          aria-busy={isPending}
+          className="min-w-36 gap-2"
+        >
+          {isPending && (
+            <LoaderCircle
+              className="size-4 shrink-0 animate-spin"
+              aria-hidden="true"
+            />
+          )}
+
           {isPending ? "Adding..." : "Add application"}
         </Button>
       </DialogFooter>

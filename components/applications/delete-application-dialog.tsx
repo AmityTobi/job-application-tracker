@@ -1,11 +1,15 @@
 "use client";
 
-import { useActionState, useEffect } from "react";
+import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { LoaderCircle } from "lucide-react";
+import { toast } from "sonner";
+
 import type { Application } from "@/lib/generated/prisma/browser";
 
 import { deleteApplicationAction } from "@/actions";
-
 import { Button } from "@/components/ui/button";
+
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -22,29 +26,83 @@ interface DeleteApplicationDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const initialState = {
-  success: false,
-  errors: null,
-};
-
 export default function DeleteApplicationDialog({
   application,
   open,
   onOpenChange,
 }: DeleteApplicationDialogProps) {
-  const [state, formAction, isPending] = useActionState(
-    deleteApplicationAction,
-    initialState,
-  );
+  const router = useRouter();
 
-  useEffect(() => {
-    if (state.success) {
-      onOpenChange(false);
+  const [isPending, startTransition] = useTransition();
+
+  const [error, setError] = useState<string | null>(null);
+
+  function handleDelete() {
+    if (isPending) {
+      return;
     }
-  }, [state.success, onOpenChange]);
+
+    setError(null);
+
+    startTransition(async () => {
+      const formData = new FormData();
+
+      formData.set("id", application.id);
+
+      try {
+        const result = await deleteApplicationAction(
+          {
+            success: false,
+            errors: null,
+          },
+          formData,
+        );
+
+        if (!result.success) {
+          const message =
+            result.errors?.message ?? "Unable to delete the application.";
+
+          setError(message);
+
+          toast.error("Deletion failed", {
+            description: message,
+          });
+
+          return;
+        }
+
+        toast.success("Application deleted", {
+          description: "The application has been removed successfully.",
+        });
+
+        onOpenChange(false);
+
+        router.refresh();
+      } catch {
+        const message = "Something went wrong. Please try again.";
+
+        setError(message);
+
+        toast.error("Something went wrong", {
+          description: message,
+        });
+      }
+    });
+  }
 
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
+    <AlertDialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        if (!isPending) {
+          onOpenChange(nextOpen);
+
+          if (!nextOpen) {
+            setError(null);
+          }
+        }
+      }}
+    >
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete application?</AlertDialogTitle>
@@ -62,29 +120,39 @@ export default function DeleteApplicationDialog({
           </AlertDialogDescription>
         </AlertDialogHeader>
 
-        {state.errors &&
-          "message" in state.errors &&
-          typeof state.errors.message === "string" && (
-            <p className="text-sm text-destructive">{state.errors.message}</p>
-          )}
+        {error && (
+          <p role="alert" className="text-sm text-destructive">
+            {error}
+          </p>
+        )}
 
-        <form action={formAction}>
-          <input type="hidden" name="id" value={application.id} />
+        <AlertDialogFooter>
+          <AlertDialogCancel
+            render={
+              <Button type="button" variant="outline" disabled={isPending} />
+            }
+          >
+            Cancel
+          </AlertDialogCancel>
 
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              render={
-                <Button type="button" variant="outline" disabled={isPending} />
-              }
-            >
-              Cancel
-            </AlertDialogCancel>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isPending}
+            aria-busy={isPending}
+            className="min-w-32 gap-2"
+          >
+            {isPending && (
+              <LoaderCircle
+                className="size-4 shrink-0 animate-spin"
+                aria-hidden="true"
+              />
+            )}
 
-            <Button type="submit" variant="destructive" disabled={isPending}>
-              {isPending ? "Deleting..." : "Delete"}
-            </Button>
-          </AlertDialogFooter>
-        </form>
+            {isPending ? "Deleting..." : "Delete"}
+          </Button>
+        </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
   );

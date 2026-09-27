@@ -3,7 +3,6 @@
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
 import { applicationSchema } from "@/lib/validations/application";
-import { revalidatePath } from "next/cache";
 import z from "zod";
 
 export async function createApplicationAction(
@@ -53,8 +52,6 @@ export async function createApplicationAction(
         userId: session.user.id,
       },
     });
-
-    revalidatePath("/");
 
     return {
       success: true,

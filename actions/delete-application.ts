@@ -2,7 +2,6 @@
 
 import { db } from "@/lib/db";
 import { auth } from "@/auth";
-import { revalidatePath } from "next/cache";
 import z from "zod";
 
 export interface DeleteApplicationState {
@@ -51,8 +50,6 @@ export async function deleteApplicationAction(
         userId: session.user.id,
       },
     });
-
-    revalidatePath("/");
 
     return {
       success: true,
