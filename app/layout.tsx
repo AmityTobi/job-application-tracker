@@ -23,12 +23,8 @@ export const metadata: Metadata = {
     template: "%s | JobTrack",
   },
   description:
-    "Organize your job search, track applications, and manage your career opportunities in one place.",
+    "Organize your job search, track applications, and manage your career opportunities.",
   applicationName: "JobTrack",
-  robots: {
-    index: false,
-    follow: false,
-  },
 };
 
 export default function RootLayout({
@@ -39,12 +35,21 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col">
+      <body className="min-h-screen antialiased">
         {children}
 
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster
+          position="top-center"
+          offset={24}
+          mobileOffset={16}
+          duration={4000}
+          visibleToasts={3}
+          expand
+          closeButton
+        />
       </body>
     </html>
   );
