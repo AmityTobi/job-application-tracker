@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+
 import { auth } from "@/auth";
 
 import {
@@ -25,18 +27,9 @@ interface HomeProps {
 export default async function Home({ searchParams }: HomeProps) {
   const session = await auth();
 
+  // Unauthenticated visitors go directly to the login page.
   if (!session?.user?.id) {
-    return (
-      <div className="min-h-screen">
-        <Navbar />
-
-        <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 sm:py-10 lg:px-8">
-          <p className="text-muted-foreground">
-            Please sign in to view your applications.
-          </p>
-        </main>
-      </div>
-    );
+    redirect("/login");
   }
 
   // Validate the URL parameters.
