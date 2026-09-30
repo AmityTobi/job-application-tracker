@@ -24,14 +24,23 @@ export default function AddApplicationDialog() {
       <DialogTrigger
         render={
           <Button size="sm">
-            <Plus />
+            <Plus aria-hidden="true" className="size-4" />
             <span className="hidden sm:inline">Add Application</span>
             <span className="sm:hidden">Add</span>
           </Button>
         }
       />
 
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent
+        className="
+          max-h-[calc(100dvh-2rem)]
+          w-[calc(100%-2rem)]
+          overflow-x-hidden
+          overflow-y-auto
+          overscroll-contain
+          sm:max-w-lg
+        "
+      >
         <DialogHeader>
           <DialogTitle>Add application</DialogTitle>
 
@@ -40,7 +49,7 @@ export default function AddApplicationDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        {open && <ApplicationForm onSuccess={() => setOpen(false)} />}
+        <ApplicationForm onSuccess={() => setOpen(false)} />
       </DialogContent>
     </Dialog>
   );

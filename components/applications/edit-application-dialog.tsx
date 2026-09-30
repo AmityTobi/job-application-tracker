@@ -25,23 +25,30 @@ export default function EditApplicationDialog({
 }: EditApplicationDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent
+        className="
+          max-h-[calc(100dvh-2rem)]
+          w-[calc(100%-2rem)]
+          overflow-x-hidden
+          overflow-y-auto
+          overscroll-contain
+          sm:max-w-lg
+        "
+      >
         <DialogHeader>
           <DialogTitle>Edit application</DialogTitle>
 
-          <DialogDescription>
+          <DialogDescription className="wrap-break-word">
             Update the details for your application at {application.companyName}
             .
           </DialogDescription>
         </DialogHeader>
 
-        {open && (
-          <EditApplicationForm
-            application={application}
-            onSuccess={() => onOpenChange(false)}
-            onCancel={() => onOpenChange(false)}
-          />
-        )}
+        <EditApplicationForm
+          application={application}
+          onSuccess={() => onOpenChange(false)}
+          onCancel={() => onOpenChange(false)}
+        />
       </DialogContent>
     </Dialog>
   );

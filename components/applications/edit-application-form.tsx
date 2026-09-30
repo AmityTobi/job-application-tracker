@@ -80,12 +80,15 @@ export default function EditApplicationForm({
     handledState.current = state;
 
     if (state.success) {
+      // Close the dialog first.
+      onSuccess();
+
+      // Then show the success notification.
       toast.success("Application updated", {
         description: "Your changes have been saved successfully.",
       });
 
-      onSuccess();
-
+      // Refresh server-rendered application data.
       router.refresh();
 
       return;
@@ -141,14 +144,6 @@ export default function EditApplicationForm({
         errors={errors}
         onClearError={clearFieldError}
       />
-
-      {state.errors &&
-        "message" in state.errors &&
-        typeof state.errors.message === "string" && (
-          <p role="alert" className="text-sm text-destructive">
-            {state.errors.message}
-          </p>
-        )}
 
       <DialogFooter>
         <Button
