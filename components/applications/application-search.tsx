@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import type { SyntheticEvent } from "react";
+import { useEffect, useState } from "react";
+import type { FormEvent, ChangeEvent } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Search } from "lucide-react";
@@ -20,7 +20,13 @@ export default function ApplicationSearch({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const [search, setSearch] = useState(defaultValue);
+  const urlSearch = searchParams.get("search") ?? defaultValue;
+
+  const [search, setSearch] = useState(urlSearch);
+
+  useEffect(() => {
+    setSearch(urlSearch);
+  }, [urlSearch]);
 
   function updateSearch(value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -48,17 +54,16 @@ export default function ApplicationSearch({
     router.push(nextUrl);
   }
 
-  function handleSubmit(event: SyntheticEvent<HTMLFormElement, SubmitEvent>) {
+  function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     updateSearch(search);
   }
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleChange(event: ChangeEvent<HTMLInputElement>) {
     const value = event.target.value;
 
     setSearch(value);
 
-    // Automatically restore results when search is cleared.
     if (value === "" && searchParams.has("search")) {
       updateSearch("");
     }
@@ -68,7 +73,7 @@ export default function ApplicationSearch({
     <form
       onSubmit={handleSubmit}
       role="search"
-      className="flex w-full items-center gap-2 sm:max-w-md"
+      className="flex w-full min-w-0 items-center gap-2 lg:max-w-md"
     >
       <div className="relative min-w-0 flex-1">
         <Search
@@ -81,13 +86,15 @@ export default function ApplicationSearch({
           name="search"
           value={search}
           onChange={handleChange}
-          placeholder="Search by company or job title"
-          aria-label="Search applications"
-          className="pl-9"
+          placeholder="Search applications"
+          aria-label="Search applications by company or job title"
+          className="w-full min-w-0 pl-9"
         />
       </div>
 
-      <Button type="submit">Search</Button>
+      <Button type="submit" className="shrink-0">
+        Search
+      </Button>
     </form>
   );
 }

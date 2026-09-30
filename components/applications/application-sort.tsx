@@ -57,7 +57,10 @@ export default function ApplicationSort({ value }: ApplicationSortProps) {
 
   return (
     <Select value={value} onValueChange={handleSortChange}>
-      <SelectTrigger aria-label="Sort applications" className="w-full sm:w-52">
+      <SelectTrigger
+        aria-label="Sort applications"
+        className="w-full min-w-0 sm:w-52"
+      >
         <SelectValue>{selectedOption?.label ?? "Newest first"}</SelectValue>
       </SelectTrigger>
 

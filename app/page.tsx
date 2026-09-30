@@ -27,16 +27,13 @@ interface HomeProps {
 export default async function Home({ searchParams }: HomeProps) {
   const session = await auth();
 
-  // Unauthenticated visitors go directly to the login page.
   if (!session?.user?.id) {
     redirect("/login");
   }
 
-  // Validate the URL parameters.
   const { searchTerm, selectedStatus, selectedSort, pageNumber } =
     parseApplicationSearchParams(await searchParams);
 
-  // Retrieve application data.
   const { applications, stats, totalPages, currentPage } =
     await getApplications({
       userId: session.user.id,
@@ -55,10 +52,14 @@ export default async function Home({ searchParams }: HomeProps) {
 
         <ApplicationStats stats={stats} />
 
-        <section className="mt-10">
-          <div className="mb-5 flex items-start justify-between gap-4">
-            <div>
-              <h2 className="text-xl font-semibold tracking-tight">
+        <section className="mt-10" aria-labelledby="applications-heading">
+          {/* Section heading */}
+          <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0 flex-1">
+              <h2
+                id="applications-heading"
+                className="text-xl font-semibold tracking-tight"
+              >
                 Applications
               </h2>
 
@@ -70,16 +71,18 @@ export default async function Home({ searchParams }: HomeProps) {
             <AddApplicationDialog />
           </div>
 
+          {/* Search and filtering controls */}
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <ApplicationSearch key={searchTerm} defaultValue={searchTerm} />
 
-            <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="grid min-w-0 grid-cols-1 gap-3 min-[400px]:grid-cols-2 lg:flex lg:items-center">
               <ApplicationStatusFilter value={selectedStatus ?? "ALL"} />
 
               <ApplicationSort value={selectedSort} />
             </div>
           </div>
 
+          {/* Application results */}
           <ApplicationList
             applications={applications}
             hasActiveFilters={Boolean(searchTerm) || Boolean(selectedStatus)}

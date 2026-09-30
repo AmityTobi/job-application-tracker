@@ -62,7 +62,7 @@ export default function ApplicationStatusFilter({
     <Select value={value} onValueChange={handleStatusChange}>
       <SelectTrigger
         aria-label="Filter applications by status"
-        className="w-full sm:w-45"
+        className="w-full min-w-0 sm:w-45"
       >
         <SelectValue>{selectedStatus?.label ?? "All statuses"}</SelectValue>
       </SelectTrigger>
