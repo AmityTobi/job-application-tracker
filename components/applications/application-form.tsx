@@ -70,15 +70,18 @@ export default function ApplicationForm({ onSuccess }: ApplicationFormProps) {
     handledState.current = state;
 
     if (state.success) {
+      setValues(getInitialValues());
+      setClientErrors({});
+
+      // Close the dialog first.
+      onSuccess?.();
+
+      // Then show the success notification.
       toast.success("Application created", {
         description: "Your application has been added successfully.",
       });
 
-      setValues(getInitialValues());
-      setClientErrors({});
-
-      onSuccess?.();
-
+      // Refresh server-rendered application data.
       router.refresh();
 
       return;
@@ -132,14 +135,6 @@ export default function ApplicationForm({ onSuccess }: ApplicationFormProps) {
         errors={errors}
         onClearError={clearFieldError}
       />
-
-      {state.errors &&
-        "message" in state.errors &&
-        typeof state.errors.message === "string" && (
-          <p role="alert" className="text-sm text-destructive">
-            {state.errors.message}
-          </p>
-        )}
 
       <DialogFooter>
         <DialogClose
