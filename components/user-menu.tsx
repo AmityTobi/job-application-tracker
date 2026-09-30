@@ -38,10 +38,17 @@ export default function UserMenu({ user }: UserMenuProps) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="ghost" className="h-10 gap-2 rounded-full px-2" />
+          <Button
+            variant="ghost"
+            className="h-10 gap-2 rounded-full px-2"
+            aria-label={`Open account menu for ${displayName}`}
+          />
         }
       >
-        <span className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand/10 text-xs font-semibold text-brand">
+        <span
+          aria-hidden="true"
+          className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-full bg-brand/10 text-xs font-semibold text-brand"
+        >
           {user.image ? (
             <Image
               src={user.image}
@@ -54,7 +61,7 @@ export default function UserMenu({ user }: UserMenuProps) {
           ) : initials ? (
             initials
           ) : (
-            <UserRound className="size-4" />
+            <UserRound className="size-4" aria-hidden="true" />
           )}
         </span>
 
