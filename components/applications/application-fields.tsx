@@ -68,7 +68,9 @@ export default function ApplicationFields({
       <div className="space-y-2">
         <Label htmlFor="companyName">
           Company
-          <span className="ml-1 text-destructive">*</span>
+          <span aria-hidden="true" className="ml-1 text-destructive">
+            *
+          </span>
         </Label>
 
         <Input
@@ -100,7 +102,9 @@ export default function ApplicationFields({
       <div className="space-y-2">
         <Label htmlFor="role">
           Role
-          <span className="ml-1 text-destructive">*</span>
+          <span aria-hidden="true" className="ml-1 text-destructive">
+            *
+          </span>
         </Label>
 
         <Input
@@ -181,9 +185,7 @@ export default function ApplicationFields({
 
             <SelectContent>
               <SelectItem value="REMOTE">Remote</SelectItem>
-
               <SelectItem value="HYBRID">Hybrid</SelectItem>
-
               <SelectItem value="ONSITE">On-site</SelectItem>
             </SelectContent>
           </Select>
@@ -204,7 +206,9 @@ export default function ApplicationFields({
         <div className="space-y-2">
           <Label htmlFor="status">
             Status
-            <span className="ml-1 text-destructive">*</span>
+            <span aria-hidden="true" className="ml-1 text-destructive">
+              *
+            </span>
           </Label>
 
           <Select
@@ -233,11 +237,8 @@ export default function ApplicationFields({
 
             <SelectContent>
               <SelectItem value="APPLIED">Applied</SelectItem>
-
               <SelectItem value="INTERVIEW">Interview</SelectItem>
-
               <SelectItem value="OFFER">Offer</SelectItem>
-
               <SelectItem value="REJECTED">Rejected</SelectItem>
             </SelectContent>
           </Select>
@@ -259,7 +260,9 @@ export default function ApplicationFields({
       <div className="space-y-2">
         <Label htmlFor="dateApplied">
           Date applied
-          <span className="ml-1 text-destructive">*</span>
+          <span aria-hidden="true" className="ml-1 text-destructive">
+            *
+          </span>
         </Label>
 
         <Input
@@ -294,8 +297,10 @@ export default function ApplicationFields({
         <Input
           id="link"
           name="link"
-          type="text"
+          type="url"
           inputMode="url"
+          autoCapitalize="none"
+          autoCorrect="off"
           value={values.link}
           onChange={(event) => updateField("link", event.target.value)}
           placeholder="https://company.com/jobs/..."
