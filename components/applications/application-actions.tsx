@@ -35,16 +35,16 @@ export default function ApplicationActions({
             <Button
               variant="ghost"
               size="icon-sm"
-              aria-label="Application actions"
+              aria-label={`Actions for ${application.role} at ${application.companyName}`}
             />
           }
         >
-          <MoreHorizontal />
+          <MoreHorizontal aria-hidden="true" />
         </DropdownMenuTrigger>
 
         <DropdownMenuContent align="end" className="w-36">
           <DropdownMenuItem onClick={() => setEditOpen(true)}>
-            <Pencil />
+            <Pencil aria-hidden="true" />
             Edit
           </DropdownMenuItem>
 
@@ -54,7 +54,7 @@ export default function ApplicationActions({
             onClick={() => setDeleteOpen(true)}
             className="text-destructive focus:text-destructive"
           >
-            <Trash2 />
+            <Trash2 aria-hidden="true" />
             Delete
           </DropdownMenuItem>
         </DropdownMenuContent>
