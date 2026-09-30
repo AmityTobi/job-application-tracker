@@ -71,12 +71,15 @@ export default function DeleteApplicationDialog({
           return;
         }
 
+        // Close the dialog first.
+        onOpenChange(false);
+
+        // Then show the success notification.
         toast.success("Application deleted", {
           description: "The application has been removed successfully.",
         });
 
-        onOpenChange(false);
-
+        // Refresh server-rendered application data.
         router.refresh();
       } catch {
         const message = "Something went wrong. Please try again.";
@@ -103,11 +106,11 @@ export default function DeleteApplicationDialog({
         }
       }}
     >
-      <AlertDialogContent>
+      <AlertDialogContent className="w-[calc(100%-2rem)] max-w-lg overflow-hidden">
         <AlertDialogHeader>
           <AlertDialogTitle>Delete application?</AlertDialogTitle>
 
-          <AlertDialogDescription>
+          <AlertDialogDescription className="wrap-break-word">
             This will permanently remove your{" "}
             <span className="font-medium text-foreground">
               {application.role}
@@ -121,7 +124,7 @@ export default function DeleteApplicationDialog({
         </AlertDialogHeader>
 
         {error && (
-          <p role="alert" className="text-sm text-destructive">
+          <p role="alert" className="wrap-break-word text-sm text-destructive">
             {error}
           </p>
         )}
