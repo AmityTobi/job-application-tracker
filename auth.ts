@@ -1,6 +1,7 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 import Google from "next-auth/providers/google";
+
 import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import { db } from "@/lib/db";
@@ -14,30 +15,33 @@ type GitHubEmail = {
 type GoogleProfile = {
   email?: string;
   email_verified?: boolean;
-  hd?: string;
 };
 
 async function getVerifiedGitHubEmail(
   accessToken: string,
 ): Promise<string | null> {
-  const response = await fetch("https://api.github.com/user/emails", {
-    headers: {
-      Authorization: `Bearer ${accessToken}`,
-      Accept: "application/vnd.github+json",
-      "X-GitHub-Api-Version": "2022-11-28",
-    },
-    cache: "no-store",
-  });
+  try {
+    const response = await fetch("https://api.github.com/user/emails", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+      },
+      cache: "no-store",
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return null;
+    }
+
+    const emails = (await response.json()) as GitHubEmail[];
+
+    const verifiedEmail = emails.find((item) => item.primary && item.verified);
+
+    return verifiedEmail?.email.toLowerCase() ?? null;
+  } catch {
     return null;
   }
-
-  const emails = (await response.json()) as GitHubEmail[];
-
-  const verifiedEmail = emails.find((item) => item.primary && item.verified);
-
-  return verifiedEmail?.email.toLowerCase() ?? null;
 }
 
 export const {
@@ -81,9 +85,14 @@ export const {
 
       const email = user.email.toLowerCase();
 
+      /*
+       * GitHub may return a private or unverified email in the
+       * profile response, so we explicitly request the user's
+       * email list and require their primary email to be verified.
+       */
       if (account.provider === "github") {
         if (!account.access_token) {
-          return "/login?error=EmailVerificationFailed";
+          return false;
         }
 
         const verifiedEmail = await getVerifiedGitHubEmail(
@@ -91,51 +100,26 @@ export const {
         );
 
         if (!verifiedEmail || verifiedEmail !== email) {
-          return "/login?error=EmailVerificationFailed";
+          return false;
         }
 
         return true;
       }
 
+      /*
+       * Google provides an email_verified claim.
+       * Only allow authentication when Google confirms ownership
+       * of the email address returned in the profile.
+       */
       if (account.provider === "google") {
         const googleProfile = profile as GoogleProfile;
 
         if (!googleProfile.email_verified) {
-          return "/login?error=EmailVerificationFailed";
+          return false;
         }
 
         if (googleProfile.email?.toLowerCase() !== email) {
-          return "/login?error=EmailVerificationFailed";
-        }
-
-        const domain = email.split("@")[1];
-
-        const isGmail = domain === "gmail.com";
-
-        const isWorkspace =
-          typeof googleProfile.hd === "string" &&
-          googleProfile.hd.toLowerCase() === domain;
-
-        if (!isGmail && !isWorkspace) {
-          const existingUser = await db.user.findUnique({
-            where: { email },
-            include: {
-              accounts: {
-                select: {
-                  provider: true,
-                },
-              },
-            },
-          });
-
-          const alreadyConnected =
-            existingUser?.accounts.some(
-              (connectedAccount) => connectedAccount.provider === "google",
-            ) ?? false;
-
-          if (existingUser && !alreadyConnected) {
-            return "/login?error=AdditionalVerificationRequired";
-          }
+          return false;
         }
 
         return true;
