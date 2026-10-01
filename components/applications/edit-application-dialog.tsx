@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 
+import ApplicationCv from "./application-cv";
 import EditApplicationForm from "./edit-application-form";
 
 interface EditApplicationDialogProps {
@@ -49,6 +50,10 @@ export default function EditApplicationDialog({
           onSuccess={() => onOpenChange(false)}
           onCancel={() => onOpenChange(false)}
         />
+
+        <div className="border-t pt-5">
+          <ApplicationCv application={application} />
+        </div>
       </DialogContent>
     </Dialog>
   );
