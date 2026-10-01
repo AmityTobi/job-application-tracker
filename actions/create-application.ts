@@ -1,19 +1,26 @@
 "use server";
 
-import { db } from "@/lib/db";
 import { auth } from "@/auth";
+import { db } from "@/lib/db";
 import { applicationSchema } from "@/lib/validations/application";
 import z from "zod";
 
+export type CreateApplicationState = {
+  success: boolean;
+  applicationId: string | null;
+  errors: unknown;
+};
+
 export async function createApplicationAction(
-  prevState: unknown,
+  prevState: CreateApplicationState,
   formData: FormData,
-) {
+): Promise<CreateApplicationState> {
   const session = await auth();
 
   if (!session?.user?.id) {
     return {
       success: false,
+      applicationId: null,
       errors: {
         message: "User not authenticated",
       },
@@ -34,12 +41,13 @@ export async function createApplicationAction(
   if (!data.success) {
     return {
       success: false,
+      applicationId: null,
       errors: z.treeifyError(data.error),
     };
   }
 
   try {
-    await db.application.create({
+    const application = await db.application.create({
       data: {
         companyName: data.data.companyName,
         role: data.data.role,
@@ -51,15 +59,20 @@ export async function createApplicationAction(
         dateApplied: data.data.dateApplied,
         userId: session.user.id,
       },
+      select: {
+        id: true,
+      },
     });
 
     return {
       success: true,
+      applicationId: application.id,
       errors: null,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
+      applicationId: null,
       errors: {
         message:
           "Could not create the application. You may not have permission.",

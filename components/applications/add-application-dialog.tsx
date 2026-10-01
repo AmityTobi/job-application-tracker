@@ -18,6 +18,13 @@ import ApplicationForm from "./application-form";
 
 export default function AddApplicationDialog() {
   const [open, setOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+
+  function handleSuccess() {
+    setOpen(false);
+
+    setFormKey((current) => current + 1);
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -25,7 +32,9 @@ export default function AddApplicationDialog() {
         render={
           <Button size="sm">
             <Plus aria-hidden="true" className="size-4" />
+
             <span className="hidden sm:inline">Add Application</span>
+
             <span className="sm:hidden">Add</span>
           </Button>
         }
@@ -49,7 +58,7 @@ export default function AddApplicationDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <ApplicationForm onSuccess={() => setOpen(false)} />
+        <ApplicationForm key={formKey} onSuccess={handleSuccess} />
       </DialogContent>
     </Dialog>
   );
