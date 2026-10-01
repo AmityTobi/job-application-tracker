@@ -65,7 +65,7 @@ export async function updateApplicationAction(
       success: true,
       errors: null,
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       errors: {

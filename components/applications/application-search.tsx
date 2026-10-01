@@ -1,13 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import type { FormEvent, ChangeEvent } from "react";
+import { useState } from "react";
+
+import type { ChangeEvent, FormEvent } from "react";
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { Search } from "lucide-react";
 
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 interface ApplicationSearchProps {
   defaultValue?: string;
@@ -20,13 +22,7 @@ export default function ApplicationSearch({
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const urlSearch = searchParams.get("search") ?? defaultValue;
-
-  const [search, setSearch] = useState(urlSearch);
-
-  useEffect(() => {
-    setSearch(urlSearch);
-  }, [urlSearch]);
+  const [search, setSearch] = useState(defaultValue);
 
   function updateSearch(value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -49,13 +45,16 @@ export default function ApplicationSearch({
 
     const currentUrl = currentQuery ? `${pathname}?${currentQuery}` : pathname;
 
-    if (nextUrl === currentUrl) return;
+    if (nextUrl === currentUrl) {
+      return;
+    }
 
     router.push(nextUrl);
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
     updateSearch(search);
   }
 
