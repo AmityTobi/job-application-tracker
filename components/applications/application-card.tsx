@@ -4,11 +4,13 @@ import {
   BriefcaseBusiness,
   CalendarDays,
   ExternalLink,
+  FileText,
   MapPin,
 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+
 import ApplicationActions from "@/components/applications/application-actions";
 
 interface ApplicationCardProps {
@@ -93,6 +95,14 @@ export default function ApplicationCard({ application }: ApplicationCardProps) {
 
           <span>Applied {formattedDate}</span>
         </div>
+
+        {application.cvFileName && (
+          <div className="flex min-w-0 items-center gap-1.5">
+            <FileText aria-hidden="true" className="size-4 shrink-0" />
+
+            <span>CV attached</span>
+          </div>
+        )}
       </div>
 
       {/* Description */}
@@ -104,7 +114,7 @@ export default function ApplicationCard({ application }: ApplicationCardProps) {
 
       {/* Actions */}
       <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t pt-4">
-        <div>
+        <div className="flex flex-wrap items-center gap-1">
           {application.link && (
             <Button
               variant="ghost"
@@ -121,6 +131,25 @@ export default function ApplicationCard({ application }: ApplicationCardProps) {
             >
               <ExternalLink aria-hidden="true" className="size-4" />
               View job
+            </Button>
+          )}
+
+          {application.cvFileName && (
+            <Button
+              variant="ghost"
+              size="sm"
+              nativeButton={false}
+              render={
+                <a
+                  href={`/api/applications/${application.id}/cv`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`View CV used for ${application.role} at ${application.companyName} (opens in a new tab)`}
+                />
+              }
+            >
+              <FileText aria-hidden="true" className="size-4" />
+              View CV
             </Button>
           )}
         </div>
