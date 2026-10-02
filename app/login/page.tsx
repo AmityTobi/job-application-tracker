@@ -116,7 +116,7 @@ function DashboardPreview() {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
+          <div className="flex items-center gap-2 text-xs text-neutral-600">
             <LayoutDashboard className="size-3.5" />
             Dashboard
           </div>
@@ -178,7 +178,7 @@ function DashboardPreview() {
                 Recent applications
               </h4>
 
-              <span className="flex items-center gap-1 text-[11px] font-medium text-orange-600">
+              <span className="flex items-center gap-1 text-[11px] font-medium text-orange-700">
                 View all
                 <ArrowUpRight className="size-3" />
               </span>
@@ -292,7 +292,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
           <div className="flex flex-1 items-center justify-center py-16">
             <div className="w-full max-w-sm">
               <div className="mb-9">
-                <div className="mb-5 inline-flex items-center rounded-full border bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground">
+                <div className="mb-5 inline-flex items-center rounded-full border bg-muted/50 px-3 py-1.5 text-xs font-medium text-foreground">
                   Your job applications, organized
                 </div>
 
