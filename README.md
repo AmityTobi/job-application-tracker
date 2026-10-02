@@ -1,33 +1,49 @@
-# Job Tracker
+# JobTrack
 
-A small, focused job application tracker built with Next.js, to reinforce and apply what I learned in Stephen Grider's _Next JS: The Complete Developer's Guide_, this time without a course guiding the build.
+A job application tracker built with Next.js that helps users organize and manage their job search in one place.
 
-This project is intentionally scoped small: one page, no unnecessary routes, built to be finished rather than to be impressive.
+🔗 **Live App:** https://keepjobtrack.vercel.app
 
-## Stack
+Built independently to put my frontend and Next.js skills into practice while gaining hands-on experience with authentication, databases, file storage, and production deployment.
 
-- Next.js (App Router)
-- TypeScript
-- Prisma 7 + SQLite
-- NextAuth (v5) with GitHub OAuth
-- Tailwind CSS + shadcn/ui
-- Zod for validation
+## Features
 
-## Planned Features (v1)
+- Google and GitHub authentication
+- Add, edit, and delete job applications
+- Track application status and dashboard statistics
+- Search, filter, sort, and paginate applications
+- Upload and manage a PDF CV for each application
+- Private, authenticated CV storage
+- Responsive and accessible interface
 
-- Sign in with GitHub
-- Add a job application (company, role, role description, link, date applied, status)
-- View all applications in a list
-- Update an application's status inline
-- No separate routes for create/edit, both are modal-based on a single page
+## Tech Stack
+
+**Next.js 16 · React 19 · TypeScript · Tailwind CSS · shadcn/ui · Prisma 7 · PostgreSQL · Auth.js · Zod · Vercel Blob · Vitest**
+
+## Running Locally
+
+```bash
+git clone https://github.com/AmityTobi/job-application-tracker.git
+cd job-application-tracker
+npm install
+```
+
+Create a `.env` file with the required database, OAuth, Auth.js, and Vercel Blob credentials.
+
+Then:
+
+```bash
+npx prisma generate
+npx prisma migrate dev
+npm run dev
+```
 
 ## Status
 
-- ✅ Prisma schema designed and migrated (Application model + NextAuth-required models)
-- 🔄 Setting up authentication
-- ⏳ Building UI
-- ⏳ Wiring server actions
+**JobTrack v1 is feature complete and deployed.**
 
-## Notes
+## Author
 
-This README is updated as the project progresses, treat it as a running log of decisions, not just a final description.
+**Amity Ekoyi**
+
+[Portfolio](https://amitytobi.netlify.app/) · [GitHub](https://github.com/AmityTobi)
