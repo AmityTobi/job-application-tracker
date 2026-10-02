@@ -52,7 +52,8 @@ export default function ApplicationSort({ value }: ApplicationSortProps) {
 
     if (nextUrl === currentUrl) return;
 
-    router.push(nextUrl);
+    // Preserve the user's scroll position while updating the results.
+    router.push(nextUrl, { scroll: false });
   }
 
   return (

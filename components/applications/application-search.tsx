@@ -35,6 +35,7 @@ export default function ApplicationSearch({
       params.delete("search");
     }
 
+    // A new search should start on page one.
     params.delete("page");
 
     const query = params.toString();
@@ -49,7 +50,8 @@ export default function ApplicationSearch({
       return;
     }
 
-    router.push(nextUrl);
+    // Preserve the user's scroll position while updating the results.
+    router.push(nextUrl, { scroll: false });
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
