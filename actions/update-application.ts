@@ -52,7 +52,11 @@ export async function updateApplicationAction(
       data: {
         companyName: result.data.companyName,
         role: result.data.role,
-        roleDescription: result.data.roleDescription,
+
+        // An empty description means the user intentionally removed it.
+        // Store null instead of keeping an empty string in the database.
+        roleDescription: result.data.roleDescription?.trim() || null,
+
         location: result.data.location,
         workMode: result.data.workMode,
         status: result.data.status,
