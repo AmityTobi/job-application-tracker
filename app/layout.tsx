@@ -18,13 +18,33 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://keepjobtrack.vercel.app"),
+
   title: {
     default: "JobTrack",
     template: "%s | JobTrack",
   },
+
   description:
     "Organize your job search, track applications, and manage your career opportunities.",
+
   applicationName: "JobTrack",
+
+  openGraph: {
+    type: "website",
+    siteName: "JobTrack",
+    title: "JobTrack — Job Application Tracker",
+    description:
+      "Organize your job search, track applications, and manage your career opportunities.",
+    url: "https://keepjobtrack.vercel.app",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "JobTrack — Job Application Tracker",
+    description:
+      "Organize your job search, track applications, and manage your career opportunities.",
+  },
 };
 
 export default function RootLayout({
